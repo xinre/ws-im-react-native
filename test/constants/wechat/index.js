@@ -1,0 +1,1 @@
+export const INITIAL_WECHAT_MODULE = 'INITIAL_WECHAT_MODULE'; // 初始化微信模块

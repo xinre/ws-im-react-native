@@ -1,4 +1,4 @@
 import { AppRegistry } from 'react-native';
-import App from './App';
+import Root from './test/Root';
 
-AppRegistry.registerComponent('WsImReactNative', () => App);
+AppRegistry.registerComponent('WsImReactNative', () => Root);
