@@ -20,6 +20,11 @@ const instructions = Platform.select({
 });
 
 export default class Index extends Component{
+    componentDidMount(){
+        initializeSDKWithOptions({
+            access_token: '37c10c6d2aaca95215c53b89c32173135d995482'
+        })
+    }
     render() {
         return (
             <View style={styles.container}>
