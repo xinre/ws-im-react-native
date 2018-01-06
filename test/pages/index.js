@@ -22,7 +22,10 @@ const instructions = Platform.select({
 export default class Index extends Component{
     componentDidMount(){
         initializeSDKWithOptions({
-            access_token: '37c10c6d2aaca95215c53b89c32173135d995482'
+            access_token: '3f5d616168c826b73f8195163e39af118962f045'
+        })
+        .then((e)=>{
+
         })
     }
     render() {
@@ -45,7 +48,7 @@ export default class Index extends Component{
                     title = {'初始化sdk'}
                     onPress = {()=>{
                         initializeSDKWithOptions({
-                            access_token: '37c10c6d2aaca95215c53b89c32173135d995482'
+                            access_token: '3f5d616168c826b73f8195163e39af118962f045'
                         })
                     }}
                 />
@@ -55,7 +58,9 @@ export default class Index extends Component{
                         const {
                             navigation
                         } = this.props
-                        navigation.navigate('Message')
+                        navigation.navigate('Message',{
+                            ac: true
+                        })
                     }}
                 />
             </View>

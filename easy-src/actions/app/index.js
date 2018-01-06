@@ -1,5 +1,5 @@
 import types from '../../constants/ActionTypes';
-// import {Fetch,fetchStatus} from '../../utils';
+import {Fetch,fetchStatus} from '../../utils';
 
 
 
@@ -48,16 +48,5 @@ export const getAppBasisData = (e)=>{
                 })
             }
         )
-    }
-}
-
-
-export const setGetNavigation = ({getNavigation,getStore})=>{
-    return dispatch => {
-        dispatch({
-            type : types.app.SET_GET_NAVIGATION,
-            getNavigation,
-            getStore,
-        })
     }
 }

@@ -33,10 +33,6 @@ export default class MessageSessionListRow extends Component{
 
         const data = allUserInfoData[itemData.relation_id]
 
-        if(!data){
-            return null
-        }
-
         return (
             <TouchableHighlight
                 activeOpacity = {0.9}

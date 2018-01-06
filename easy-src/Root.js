@@ -14,95 +14,38 @@ import {
     userLogin
 } from "./actions/user"
 import {
-    setGetNavigation
-} from "./actions/app"
-import {
     initSessionListData,
     addAllUserInfoData,
     addMoreAllUserInfoData,
     addMessageListViewData,
     addSessionListData,
     setUnreadMessageNum,
-    selectedSessionListItem,
 } from "./actions/message/sessionList"
 import {
     changeMessageItemData,
     addMessageItemData,
 } from "./actions/message/messageSend"
-import { NavigationActions } from 'react-navigation'
+
 
 
 const chatUrl = 'ws://ws.pinggai.cc'
 
 
-export {
-    MessageListView,
-    MessageDetail,
-} from "./containers/Navigator";
-
-// export default class Root extends Component {
-//     render() {
-//         return (
-//             <Provider store={store}>
-//                 <App
-//                     propsNavigation={this.props.navigation}
-//                     screenProps={{
-//                         newScreenProps: this.props.screenProps
-//                     }}
-//                     initialRouteName={this.props.initialRouteName}
-//                 />
-//             </Provider>
-//         );
-//     }
-// }
-export const openMessageDetailViewController = ({id}:{id: number})=>{
-
-    const {
-        dispatch
-    } = store
-    const {
-        socketInstance
-    } = store.getState().message
-    socketInstance.send(JSON.stringify({
-        type: 'user.info',
-        data: {
-            user_id: id,
-        }
-    }))
-    dispatch(selectedSessionListItem({
-        id,
-    }))
-
-    const {
-        getStore
-    } = store.getState().navigation
-    const externalStore = getStore()
-    const navigateAction = NavigationActions.navigate({
-        routeName: 'MessageDetail',
-        params: {
-            id
-        },
-    })
-    externalStore.dispatch(navigateAction)
+export default class Root extends Component {
+    render() {
+        console.log('Root',this.props);
+        return (
+            <Provider store={store}>
+                <App propsNavigation={this.props.navigation}/>
+            </Provider>
+        );
+    }
 }
 
-
-export const initializeSDKWithOptions = ({
-    access_token,
-    getNavigation,
-    getStore,
-}:{
-    access_token: string,
-    getNavigation: functon,
-    getStore: functon,
-})=>{
+export const initializeSDKWithOptions = ({access_token}:{access_token: string})=>{
     const {
         dispatch
     } = store
-    dispatch(setGetNavigation({
-        getNavigation,
-        getStore,
-    }))
     let ws: {
         socket: any,
         last_health_time: number,
@@ -222,6 +165,7 @@ const onMessage = ({ws,data})=>{
     const {
         allUserInfoData,
         allMessageListData,
+        addSessionListData,
     } = store.getState().message
 
     const {
@@ -286,23 +230,6 @@ const onMessage = ({ws,data})=>{
                     id: user_info.id,
                     data: user_info
                 }))
-                const {
-                    getNavigation,
-                    getStore,
-                } = store.getState().navigation
-                const navigation = getNavigation()
-                const externalStore = getStore()
-                const {
-                    index,
-                    routes,
-                } = navigation
-                if(routes[index].routeName==='MessageDetail'){
-                    const setParamsAction = NavigationActions.setParams({
-                        params: { },
-                        key: routes[index].key,
-                    })
-                    externalStore.dispatch(setParamsAction)
-                }
             }else {
                 Toast.info(data.msg)
             }
@@ -324,6 +251,7 @@ const onMessage = ({ws,data})=>{
             }
             break;
         case 'message.list':
+            // console.log(data);
             if(data.code===0){
                 const {
                     relation_id
@@ -370,9 +298,8 @@ const onMessage = ({ws,data})=>{
                     userInfo,
                 } = store.getState().userIndex
                 const {
-                    getNavigation,
-                } = store.getState().navigation
-                const navigation = getNavigation()
+                    navigation,
+                } = store.getState()
 
                 const kfUserId = selectedSessionListItemId
                 const relationId = userInfo.id===relation_id?user_id:relation_id

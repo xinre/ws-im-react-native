@@ -15,32 +15,63 @@ import {
 // import JPushModule from '../utils/JPushModule';
 import { connect } from "react-redux";
 import { PublicStyles, ThemeStyle } from "../utils/PublicStyleModule";
-import Navigator from './Navigator';
-// import {
-//     getUserMixedStateNum,
-//     getUnreadAllCount
-// } from "../actions/user";
+import Navigator,{MessageDetailNavigator} from './Navigator';
 import { addNavigationHelpers } from 'react-navigation';
 
 
 class App extends Component {
-    componentDidMount(){
+    constructor(props) {
+        super(props);
 
+        this.state = {
+
+        };
+        const {
+            // initialRouteName,
+            ...params
+        } = this.props.propsNavigation.state.params || {}
+        this.Root = Navigator({
+            initialRouteParams:{...params},
+            initialRouteName: this.props.initialRouteName
+        })
+    }
+    componentDidMount(){
 
     }
     render() {
-
+        const {
+            screenProps
+        } = this.props
+        // const {
+        //     initialRouteName,
+        //     ...params
+        // } = this.props.propsNavigation.state.params || {}
+        // if(initialRouteName==='MessageDetail'){
+        //     const Root = MessageDetailNavigator({initialRouteParams:{...params}})
+        //     return (
+        //         <View style={{ flex: 1 }}>
+        //             <Root
+        //                 screenProps = {{
+        //                     propsNavigation: this.props.propsNavigation,
+        //                     ...screenProps,
+        //                 }}
+        //             />
+        //         </View>
+        //     )
+        // }
+        const Root = this.Root
         return (
             <View style={{ flex: 1 }}>
 
-                <Navigator
+                <Root
                     screenProps = {{
-                        propsNavigation: this.props.propsNavigation
+                        propsNavigation: this.props.propsNavigation,
+                        ...screenProps,
                     }}
-                    navigation = {addNavigationHelpers({
-                        dispatch: this.props.dispatch,
-                        state: this.props.navigation,
-                    })}
+                    // navigation = {addNavigationHelpers({
+                    //     dispatch: this.props.dispatch,
+                    //     state: this.props.navigation,
+                    // })}
                 />
 
             </View>

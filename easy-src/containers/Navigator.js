@@ -1,40 +1,35 @@
 import {Platform} from "react-native";
 import { StackNavigator } from "react-navigation";
 import { PublicStyles, ThemeStyle } from "../utils/PublicStyleModule";
-import CardStackStyleInterpolator from 'react-navigation/src/views/CardStack/CardStackStyleInterpolator';
+// import CardStackStyleInterpolator from 'react-navigation/src/views/CardStackStyleInterpolator';
 
-import IndexView from "../pages";
-import Message from "../../src/Root";
-import TestTab from "../pages/tab";
+import MessageListView from "../pages/MessageListView";
+import MessageDetail from "../pages/MessageDetail";
 
 
 
 
 const Navigator = StackNavigator(
     {
-        IndexView: {
-            screen: IndexView,
+        MessageListView: {
+            screen: MessageListView,
             navigationOptions: {
                 headerTintColor: "#fff",
                 headerStyle : {
-                    backgroundColor: '#3699FF',
+                    backgroundColor: ThemeStyle.ThemeColor,
                 },
-                title: '魔际 IM'
+                title: '最近联系人',
             },
         },
-        Message : {
-            screen: Message,
-            navigationOptions:{
-                header : null,
+        MessageDetail: {
+            screen: MessageDetail,
+            navigationOptions: {
+                headerTintColor: "#fff",
+                headerStyle : {
+                    backgroundColor: ThemeStyle.ThemeColor,
+                },
             },
         },
-        TestTab : {
-            screen: TestTab,
-            navigationOptions:{
-                header : null,
-            },
-        },
-
 
 
     },
@@ -46,8 +41,6 @@ const Navigator = StackNavigator(
                 backgroundColor: "#fff",
             },
         },
-        initialRouteName: 'IndexView',
-        initialRouteParams: { isCloseable: true },
         mode: "card",
         ...Platform.select({
             ios: {
@@ -55,9 +48,9 @@ const Navigator = StackNavigator(
             },
             android: {
                 headerMode: 'screen',
-                transitionConfig:()=>({
-                    screenInterpolator:CardStackStyleInterpolator.forHorizontal,
-                })
+                // transitionConfig:()=>({
+                //     screenInterpolator:CardStackStyleInterpolator.forHorizontal,
+                // })
             },
         }),
     }

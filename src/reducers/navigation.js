@@ -1,30 +1,18 @@
 import types from '../constants/ActionTypes';
-import AppNavigator from "../containers/Navigator";
 
-const initialState = AppNavigator.router.getStateForAction(
-    AppNavigator.router.getActionForPathAndParams("MessageListView")
-);
+const initialState = {
+    getNavigation : null,
+    getStore: null,
+}
 
-export default (state = initialState, action) => {
-    let nextState;
+export default (state = initialState, action)=>{
     switch (action.type) {
-        // case "Login":
-        //     nextState = AppNavigator.router.getStateForAction(
-        //         //  getStateForAction: 根据给定的action来定义返回的navigation sate
-        //         NavigationActions.back(), // action  返回上一屏幕并关闭当前屏幕
-        //         state // state
-        //     );
-        //     break;
-        // case "Logout":
-        //     nextState = AppNavigator.router.getStateForAction(
-        //         NavigationActions.navigate({ routeName: "Login" }), // 通过navigat action 改变当前state
-        //         state
-        //     );
-        //     break;
+        case types.app.SET_GET_NAVIGATION:
+            return Object.assign({}, state, {
+                getNavigation: action.getNavigation,
+                getStore: action.getStore,
+            })
         default:
-            nextState = AppNavigator.router.getStateForAction(action, state);
-            break;
+            return state;
     }
-
-    return nextState || state;
-};
+}

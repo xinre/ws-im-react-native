@@ -19,12 +19,31 @@ import MessageSessionListRow from "../components/MessageSessionListRow";
 import {
     sessionListRefresh
 } from "../actions/message/sessionList";
-import { NavigationActions } from 'react-navigation'
+
 
 
 
 class MessageListView extends Component{
+    state = {
+
+    };
+    static navigationOptions = (e)=>{
+        return {
+            headerLeft: (
+                <HeaderBackButton
+                    title = {'返回'}
+                    tintColor = {'#fff'}
+                    onPress = {()=>{
+                        e.screenProps.propsNavigation.goBack()
+                    }}
+                />
+            )
+        }
+    }
+    componentDidMount(){
+    }
     render() {
+        console.log('MessageListView',this.props.navigation);
         const {
             sessionListData,
             allUserInfoData,
@@ -34,18 +53,15 @@ class MessageListView extends Component{
             sessionListRefreshing,
             navigation,
             allMessageListData,
-            screenProps,
         } = this.props
-
-        const {
-            listViewHeader,
-        } = this.props
-
 
         return (
             <View style={{flex:1}}>
+                <StatusBar
+                    animated = {true}
+                    barStyle = {'light-content'}
+                />
                 <FlatList
-                    ListHeaderComponent = {listViewHeader||undefined}
                     data={sessionListData}
                     renderItem={({item}) => (
                         <MessageSessionListRow

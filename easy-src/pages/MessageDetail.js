@@ -24,11 +24,22 @@ import {setListViewInstance} from '../actions/message';
 import Modal from 'react-native-modal'
 import Gallery from 'react-native-image-gallery';
 import KeyboardSpacer from 'react-native-keyboard-spacer';
-import {selectedSessionListItem} from '../actions/message/sessionList';
 
 
 
 class MessageDetail extends Component{
+    static navigationOptions = (e)=>{
+        const {
+            allUserInfoData,
+        } = store.getState().message
+        const {
+            id
+        } = e.navigation.state.params
+        return {
+            title: allUserInfoData[id]?allUserInfoData[id].nickname:'未知昵称',
+        }
+    }
+
     // scrollToEnd: Function = ()=>{};
     // showImageModal: Function = ()=>{};
     FlatList: {scrollToEnd: Function} = {scrollToEnd:()=>{}};
@@ -50,16 +61,10 @@ class MessageDetail extends Component{
         this.showImageModal = this.showImageModal.bind(this)
     }
     componentDidMount(){
-        const {
-            dispatch,
-            socketInstance,
-            allUserInfoData,
-            navigation,
-            func,
-        } = this.props
-        dispatch(setListViewInstance(this.scrollToEnd))
+        this.props.dispatch(setListViewInstance(this.scrollToEnd))
     }
     componentDidUpdate(prevProps,prevState){
+
         // console.log(prevProps.allMessageListData);
         // console.log(prevState);
         // // console.log(this.props.allMessageListData)
@@ -69,6 +74,7 @@ class MessageDetail extends Component{
         // },100)
     }
     render() {
+
         const {
             allMessageListData,
             navigation,
