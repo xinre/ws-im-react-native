@@ -2,6 +2,9 @@
 
 import React,{Component} from "react";
 import { Provider } from "react-redux";
+import {
+    AppState,
+} from "react-native";
 import store from "./store";
 import App from "./containers/App";
 import {Toast} from "./utils/PublicFuncitonModule";
@@ -165,7 +168,7 @@ export const initializeSDKWithOptions = ({
             dispatch(onChangeWebSocketConnectState({
                 state : 3
             }))
-            Toast.error('WebSocket错误')
+            // Toast.error('WebSocket错误')
         };
         ws.socket.onmessage = (e) => {
             const data = JSON.parse(e.data)
@@ -194,24 +197,41 @@ export const initializeSDKWithOptions = ({
             if (new Date().getTime() - reconnect >= 10000) {
                 ws.socket.close();
             } else {
-                ws = {
-                    socket: new WebSocket(`${chatUrl}`),
-                    last_health_time: -1,
-                    keepalive: tempWs.keepalive,
-                    receiveMessageTimer: ()=>{},
-                    keepAliveTimer: 0,
-                };
-
-                ws.socket.onopen = tempWs.socket.onopen;
-                ws.socket.onmessage = tempWs.socket.onmessage;
-                ws.socket.onerror = tempWs.socket.onerror;
-                ws.socket.onclose = tempWs.socket.onclose;
-
+                if(AppState.currentState==='active'){
+                    ws = {
+                        socket: new WebSocket(`${chatUrl}`),
+                        last_health_time: -1,
+                        keepalive: tempWs.keepalive,
+                        receiveMessageTimer: ()=>{},
+                        keepAliveTimer: 0,
+                    };
+                    ws.socket.onopen = tempWs.socket.onopen;
+                    ws.socket.onmessage = tempWs.socket.onmessage;
+                    ws.socket.onerror = tempWs.socket.onerror;
+                    ws.socket.onclose = tempWs.socket.onclose;
+                }
             }
-
-            Toast.error('WebSocket关闭')
+            // Toast.error('WebSocket关闭')
         }
     }
+
+    AppState.addEventListener('change', (e)=>{
+        if(e==='active'&&ws.socket&&ws.socket.readyState===3){
+            const tempWs = ws;
+            ws = {
+                socket: new WebSocket(`${chatUrl}`),
+                last_health_time: -1,
+                keepalive: tempWs.keepalive,
+                receiveMessageTimer: ()=>{},
+                keepAliveTimer: 0,
+            };
+            ws.socket.onopen = tempWs.socket.onopen;
+            ws.socket.onmessage = tempWs.socket.onmessage;
+            ws.socket.onerror = tempWs.socket.onerror;
+            ws.socket.onclose = tempWs.socket.onclose;
+        }
+    })
+
     return new Promise((resolve, reject)=>{
         resolve()
     })
