@@ -83,7 +83,7 @@ export default class MessageSessionListRow extends Component{
             switch (recentMessageData.content_type) {
                 case 'text':
                     return (
-                        <Text style={styles.Text2}>
+                        <Text style={styles.Text2} numberOfLines={1}>
                             {emojify(recentMessageData.content.text_content)}
                         </Text>
                     )
@@ -122,12 +122,13 @@ const styles = StyleSheet.create({
     view2:{
         flex:1,
         marginLeft:20,
-        justifyContent:'space-between',
         paddingVertical:5,
+        marginTop:7,
     },
     Text1:{
         fontSize:16,
         fontWeight:'400',
+        marginBottom:5,
     },
     Text2:{
         fontSize:16,

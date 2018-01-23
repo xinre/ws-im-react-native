@@ -35,18 +35,23 @@ class MessageListView extends Component{
             navigation,
             allMessageListData,
             screenProps,
-        } = this.props
-
-        const {
             listViewHeader,
+            stickTopSessionList,
         } = this.props
 
+        const sessionList = stickTopSessionList.length
+        ?   sessionListData.sort((a,b)=>{
+                const index = stickTopSessionList.findIndex((e)=>(e===a.relation_id))
+                const index2 = stickTopSessionList.findIndex((e)=>(e===b.relation_id))
+                return index2 - index
+            })
+        :   sessionListData
 
         return (
             <View style={{flex:1}}>
                 <FlatList
                     ListHeaderComponent = {listViewHeader||undefined}
-                    data={sessionListData}
+                    data={sessionList}
                     renderItem={({item}) => (
                         <MessageSessionListRow
                             itemData = {item}
@@ -103,6 +108,7 @@ const mapStateToProps = store => {
         socketInstance,
         sessionListRefreshing,
         allMessageListData,
+        stickTopSessionList,
     } = store.message
     return {
         connectState,
@@ -112,6 +118,7 @@ const mapStateToProps = store => {
         socketInstance,
         sessionListRefreshing,
         allMessageListData,
+        stickTopSessionList,
     };
 };
 

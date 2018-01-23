@@ -52,14 +52,16 @@ export default class MessageListRow extends Component{
         return(
             <View style={styles.view4}>
                 <Image
-                    source={{uri:selectedUserInfo.avatar}}
+                    source = {selectedUserInfo.avatar&&selectedUserInfo.avatar.length?{uri:selectedUserInfo.avatar}:require('../images/defaultAvatar-man.png')}
                     style={styles.image1}
                 />
-                <View style={styles.view5}>
-                    {
-                        this.contentView({data,left:true,right:false})
-                    }
-                    <View style={styles.view8}/>
+                <View style={styles.view10}>
+                    <View style={styles.view5}>
+                        {
+                            this.contentView({data,left:true,right:false})
+                        }
+                        <View style={styles.view8}/>
+                    </View>
                 </View>
             </View>
         )
@@ -70,14 +72,16 @@ export default class MessageListRow extends Component{
         } = this.props
         return(
             <View style={[styles.view4,{justifyContent:'flex-end'}]}>
-                <View style={[styles.view7]}>
-                    {
-                        this.contentView({data,left:false,right:true})
-                    }
-                    <View style={styles.view6}/>
+                <View style={styles.view11}>
+                    <View style={[styles.view7]}>
+                        {
+                            this.contentView({data,left:false,right:true})
+                        }
+                        <View style={styles.view6}/>
+                    </View>
                 </View>
                 <Image
-                    source={{uri:userInfo.avatar}}
+                    source = {userInfo.avatar&&userInfo.avatar.length?{uri:userInfo.avatar}:require('../images/defaultAvatar-man.png')}
                     style={styles.image1}
                 />
             </View>
@@ -88,7 +92,7 @@ export default class MessageListRow extends Component{
             switch (data.content_type) {
                 case 'text':
                     return(
-                        <Text style={[styles.text2,right&&{color:'#fff'}]}>{emojify(data.content.text_content)}</Text>
+                        <Text style={[styles.text2,right&&{color:'#fff'}]} selectable={true}>{emojify(data.content.text_content)}</Text>
                     )
                 case 'image':
                     return(
@@ -250,5 +254,14 @@ const styles = StyleSheet.create({
     image3:{
         width:30,
         height:30,
+    },
+    view10:{
+        flex:1,
+        flexDirection:'row',
+    },
+    view11:{
+        flex:1,
+        flexDirection:'row',
+        justifyContent:'flex-end',
     },
 })

@@ -15,6 +15,7 @@ const initialState = {
     allUnreadMessage:{},
     allMessageDataStore: [],
     sessionListRefreshing: false,
+    stickTopSessionList: [],
 }
 
 
@@ -70,6 +71,10 @@ export default (state = initialState, action)=>{
         case types.message.SESSION_LIST_REFRESH:
             return Object.assign({}, state, {
                 sessionListRefreshing: true,
+            })
+        case types.message.SET_STICK_TOP_SESSION_LIST:
+            return Object.assign({}, state, {
+                stickTopSessionList: action.data,
             })
         default:
             return state;

@@ -137,3 +137,13 @@ export const sessionListRefresh = ()=>{
         })
     }
 }
+
+
+export const setStickTopSessionListFunc = (e)=>{
+    return dispatch => {
+        dispatch({
+            type: types.message.SET_STICK_TOP_SESSION_LIST,
+            data: e,
+        })
+    }
+}

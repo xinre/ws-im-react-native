@@ -27,12 +27,14 @@ import {
     addSessionListData,
     setUnreadMessageNum,
     selectedSessionListItem,
+    setStickTopSessionListFunc,
 } from "./actions/message/sessionList"
 import {
     changeMessageItemData,
     addMessageItemData,
 } from "./actions/message/messageSend"
 import { NavigationActions } from 'react-navigation'
+import {subscribe} from 'redux-subscriber';
 
 
 const chatUrl = 'ws://ws.pinggai.cc'
@@ -43,26 +45,36 @@ export {
     MessageDetail,
 } from "./containers/Navigator";
 
-// export default class Root extends Component {
-//     render() {
-//         return (
-//             <Provider store={store}>
-//                 <App
-//                     propsNavigation={this.props.navigation}
-//                     screenProps={{
-//                         newScreenProps: this.props.screenProps
-//                     }}
-//                     initialRouteName={this.props.initialRouteName}
-//                 />
-//             </Provider>
-//         );
-//     }
-// }
+
+
+
+export const setStickTopSessionList = (e)=>{
+    if(Array.isArray(e)){
+        const {
+            dispatch
+        } = store
+        dispatch(setStickTopSessionListFunc(e))
+        return new Promise((resolve, reject)=>{
+            resolve()
+        })
+    }else {
+        return new Promise((resolve, reject)=>{
+            reject({
+                errmsg: '传入参数类型异常'
+            })
+        })
+    }
+}
+
+
+
+
 export const openMessageDetailViewController = ({id}:{id: number})=>{
 
     const {
         dispatch
     } = store
+
     const {
         socketInstance
     } = store.getState().message
@@ -94,14 +106,21 @@ export const initializeSDKWithOptions = ({
     access_token,
     getNavigation,
     getStore,
+    unreadMessageNumberChange,
 }:{
     access_token: string,
     getNavigation: functon,
     getStore: functon,
+    unreadMessageNumberChange: functon,
 })=>{
     const {
         dispatch
     } = store
+
+    const unsubscribe = subscribe('message.allUnreadMessage', state => {
+        unreadMessageNumberChange&&unreadMessageNumberChange(state.message.allUnreadMessage)
+    })
+
     dispatch(setGetNavigation({
         getNavigation,
         getStore,
@@ -112,12 +131,14 @@ export const initializeSDKWithOptions = ({
         keepalive: () => mixed,
         receiveMessageTimer: (() => mixed) | number,
         keepAliveTimer: number,
+        reconnectNumber: number,
     } = {
         socket: new WebSocket(`${chatUrl}`),
         last_health_time: -1,
         keepalive: ()=>{},
         receiveMessageTimer: ()=>{},
         keepAliveTimer: 0,
+        reconnectNumber: 0,
     }
     ws.last_health_time = -1;
     ws.keepalive = ()=>{
@@ -138,6 +159,7 @@ export const initializeSDKWithOptions = ({
         let reconnectMark = false;
 
         ws.socket.onopen = () => {
+
             reconnect = 0;
             reconnectMark = false;
             ws.receiveMessageTimer = setTimeout(() => {
@@ -163,6 +185,7 @@ export const initializeSDKWithOptions = ({
                     access_token,
                 }
             }))
+
         };
         ws.socket.onerror = () => {
             dispatch(onChangeWebSocketConnectState({
@@ -172,7 +195,7 @@ export const initializeSDKWithOptions = ({
         };
         ws.socket.onmessage = (e) => {
             const data = JSON.parse(e.data)
-            onMessage({ws: ws.socket,data})
+            onMessage({ws: ws.socket,data,wsInstance:ws})
 
             clearTimeout(ws.receiveMessageTimer);
             ws.receiveMessageTimer = setTimeout(() => {
@@ -209,6 +232,7 @@ export const initializeSDKWithOptions = ({
                     ws.socket.onmessage = tempWs.socket.onmessage;
                     ws.socket.onerror = tempWs.socket.onerror;
                     ws.socket.onclose = tempWs.socket.onclose;
+                    ws.reconnectNumber = tempWs.reconnectNumber+1;
                 }
             }
             // Toast.error('WebSocket关闭')
@@ -216,6 +240,7 @@ export const initializeSDKWithOptions = ({
     }
 
     AppState.addEventListener('change', (e)=>{
+
         if(e==='active'&&ws.socket&&ws.socket.readyState===3){
             const tempWs = ws;
             ws = {
@@ -229,6 +254,8 @@ export const initializeSDKWithOptions = ({
             ws.socket.onmessage = tempWs.socket.onmessage;
             ws.socket.onerror = tempWs.socket.onerror;
             ws.socket.onclose = tempWs.socket.onclose;
+            ws.reconnectNumber = tempWs.reconnectNumber+1;
+
         }
     })
 
@@ -238,7 +265,7 @@ export const initializeSDKWithOptions = ({
 }
 
 
-const onMessage = ({ws,data})=>{
+const onMessage = ({ws,data,wsInstance})=>{
     const {
         allUserInfoData,
         allMessageListData,
@@ -262,6 +289,33 @@ const onMessage = ({ws,data})=>{
                 ws.send(JSON.stringify({
                     type: 'message.session.list',
                 }))
+
+                if(wsInstance.reconnectNumber!==0){
+                    const {
+                        allMessageListData,
+                        sessionListData,
+                    } = store.getState().message
+                    const offlineMessage = sessionListData.map((e)=>{
+                        const itemData = allMessageListData[e.relation_id]
+                        if(itemData&&itemData.list.length){
+                            return {
+                                id: e.relation_id,
+                                last_message_id: itemData.list[0].id
+                            }
+                        }
+                    })
+                    offlineMessage.map((e)=>{
+                        ws.send(JSON.stringify({
+                            type: 'message.list',
+                            data: {
+                                type: 'user',
+                    			relation_id: e.id,
+                                last_message_id: e.last_message_id,
+                            }
+                        }))
+                    })
+                }
+
             }else {
                 Toast.info(data.msg)
             }
@@ -270,6 +324,7 @@ const onMessage = ({ws,data})=>{
             const {
                 session_list
             } = data.data
+
             // const {
             //     allMessageDataStore
             // } = store.getState().message
@@ -344,6 +399,7 @@ const onMessage = ({ws,data})=>{
             }
             break;
         case 'message.list':
+
             if(data.code===0){
                 const {
                     relation_id
@@ -363,7 +419,6 @@ const onMessage = ({ws,data})=>{
                         },50)
                     }
                 })
-
 
             }else {
                 Toast.info(data.msg)
