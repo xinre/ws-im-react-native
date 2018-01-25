@@ -10,6 +10,7 @@ import{
     FlatList,
     SafeAreaView,
     KeyboardAvoidingView,
+    Platform,
 } from 'react-native';
 
 import {PublicStyles,PublicStylesString,windowWidth,windowHeight,ThemeStyle} from '../utils/PublicStyleModule';
@@ -148,7 +149,9 @@ class MessageDetail extends Component{
                         dispatch = {dispatch}
                         scrollToEnd = {this.scrollToEnd}
                     />
-                    <KeyboardSpacer/>
+                    {
+                        Platform.OS==='ios'&&<KeyboardSpacer/>
+                    }
                 </SafeAreaView>
 
                 <Modal isVisible={this.state.isModalVisible} style={{padding:0,margin:0}}>

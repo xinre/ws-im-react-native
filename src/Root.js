@@ -159,7 +159,6 @@ export const initializeSDKWithOptions = ({
         let reconnectMark = false;
 
         ws.socket.onopen = () => {
-
             reconnect = 0;
             reconnectMark = false;
             ws.receiveMessageTimer = setTimeout(() => {
@@ -203,7 +202,6 @@ export const initializeSDKWithOptions = ({
             }, 30000);
         };
         ws.socket.onclose = () => {
-
             dispatch(onChangeWebSocketConnectState({
                 state : 2
             }))
@@ -239,8 +237,8 @@ export const initializeSDKWithOptions = ({
         }
     }
 
-    AppState.addEventListener('change', (e)=>{
 
+    AppState.addEventListener('change', (e)=>{
         if(e==='active'&&ws.socket&&ws.socket.readyState===3){
             const tempWs = ws;
             ws = {
@@ -255,7 +253,9 @@ export const initializeSDKWithOptions = ({
             ws.socket.onerror = tempWs.socket.onerror;
             ws.socket.onclose = tempWs.socket.onclose;
             ws.reconnectNumber = tempWs.reconnectNumber+1;
-
+        }
+        if(e==='background'&&ws.socket&&ws.socket.readyState===1){
+            ws.socket.close()
         }
     })
 
@@ -295,13 +295,14 @@ const onMessage = ({ws,data,wsInstance})=>{
                         allMessageListData,
                         sessionListData,
                     } = store.getState().message
-                    const offlineMessage = sessionListData.map((e)=>{
+                    let offlineMessage = []
+                    sessionListData.map((e)=>{
                         const itemData = allMessageListData[e.relation_id]
                         if(itemData&&itemData.list.length){
-                            return {
+                            offlineMessage.push({
                                 id: e.relation_id,
                                 last_message_id: itemData.list[0].id
-                            }
+                            })
                         }
                     })
                     offlineMessage.map((e)=>{
