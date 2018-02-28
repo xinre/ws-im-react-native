@@ -76,6 +76,23 @@ export default (state = initialState, action)=>{
             return Object.assign({}, state, {
                 stickTopSessionList: action.data,
             })
+        case types.message.REMOVE_MESSAGE_DATA:
+            return Object.assign({}, state, {
+                socketInstance: null,
+                connectState: 0,
+                selectedSessionListItemId : null,
+                connectNumber: 0,
+                showConnectLoading: false,
+                sessionListData: [],
+                allUserInfoData: {},
+                allMessageListData: {},
+                listViewInstance: null,
+                refreshing: false,
+                allUnreadMessage:{},
+                allMessageDataStore: [],
+                sessionListRefreshing: false,
+                stickTopSessionList: [],
+            })
         default:
             return state;
     }

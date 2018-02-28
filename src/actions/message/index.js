@@ -53,3 +53,12 @@ export const refreshingChange = (e)=>{
         })
     }
 }
+
+
+export const removeMessageData = ()=>{
+    return dispatch => {
+        dispatch({
+            type : types.message.REMOVE_MESSAGE_DATA,
+        })
+    }
+}

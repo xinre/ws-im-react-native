@@ -12,6 +12,7 @@ import {Toast} from "./utils/PublicFuncitonModule";
 import {
     onChangeWebSocketConnectState,
     setWebSocket,
+    removeMessageData,
 } from "./actions/message"
 import {
     userLogin
@@ -45,6 +46,25 @@ export {
     MessageDetail,
 } from "./containers/Navigator";
 
+
+
+export const logOut = ()=>{
+    const {
+        dispatch
+    } = store
+    const {
+        socketInstance
+    } = store.getState().message
+    if(socketInstance.readyState===1){
+        socketInstance.close()
+    }
+    dispatch(removeMessageData())
+    return new Promise((resolve, reject)=>{
+        resolve({
+            msg: '已清空数据'
+        })
+    })
+}
 
 
 
@@ -201,36 +221,39 @@ export const initializeSDKWithOptions = ({
                 ws.socket.close();
             }, 30000);
         };
-        ws.socket.onclose = () => {
-            dispatch(onChangeWebSocketConnectState({
-                state : 2
-            }))
+        ws.socket.onclose = (e) => {
+            if(e.code!==1001){
 
-            clearTimeout(ws.receiveMessageTimer)
-            clearInterval(ws.keepAliveTimer)
-            if (!reconnectMark) {
+                dispatch(onChangeWebSocketConnectState({
+                    state : 2
+                }))
 
-                reconnect = new Date().getTime();
-                reconnectMark = true;
+                clearTimeout(ws.receiveMessageTimer)
+                clearInterval(ws.keepAliveTimer)
+                if (!reconnectMark) {
 
-            }
-            const tempWs = ws;
-            if (new Date().getTime() - reconnect >= 10000) {
-                ws.socket.close();
-            } else {
-                if(AppState.currentState==='active'){
-                    ws = {
-                        socket: new WebSocket(`${chatUrl}`),
-                        last_health_time: -1,
-                        keepalive: tempWs.keepalive,
-                        receiveMessageTimer: ()=>{},
-                        keepAliveTimer: 0,
-                    };
-                    ws.socket.onopen = tempWs.socket.onopen;
-                    ws.socket.onmessage = tempWs.socket.onmessage;
-                    ws.socket.onerror = tempWs.socket.onerror;
-                    ws.socket.onclose = tempWs.socket.onclose;
-                    ws.reconnectNumber = tempWs.reconnectNumber+1;
+                    reconnect = new Date().getTime();
+                    reconnectMark = true;
+
+                }
+                const tempWs = ws;
+                if (new Date().getTime() - reconnect >= 10000) {
+                    ws.socket.close();
+                } else {
+                    if(AppState.currentState==='active'){
+                        ws = {
+                            socket: new WebSocket(`${chatUrl}`),
+                            last_health_time: -1,
+                            keepalive: tempWs.keepalive,
+                            receiveMessageTimer: ()=>{},
+                            keepAliveTimer: 0,
+                        };
+                        ws.socket.onopen = tempWs.socket.onopen;
+                        ws.socket.onmessage = tempWs.socket.onmessage;
+                        ws.socket.onerror = tempWs.socket.onerror;
+                        ws.socket.onclose = tempWs.socket.onclose;
+                        ws.reconnectNumber = tempWs.reconnectNumber+1;
+                    }
                 }
             }
             // Toast.error('WebSocket关闭')

@@ -12,3 +12,4 @@ export const REFRESHING_CHANGE = 'REFRESHING_CHANGE'; // 刷新指示器变化
 export const SET_UNREAD_MESSAGE_NUM = 'SET_UNREAD_MESSAGE_NUM'; // 设置未读消息数量
 export const SESSION_LIST_REFRESH = 'SESSION_LIST_REFRESH'; // 刷新聊天消息列表
 export const SET_STICK_TOP_SESSION_LIST = 'SET_STICK_TOP_SESSION_LIST'; // 设置置顶聊天列表数组
+export const REMOVE_MESSAGE_DATA = 'REMOVE_MESSAGE_DATA'; // 删除消息数据
