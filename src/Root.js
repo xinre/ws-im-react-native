@@ -29,6 +29,7 @@ import {
     setUnreadMessageNum,
     selectedSessionListItem,
     setStickTopSessionListFunc,
+    setUnreadMessageNumData,
 } from "./actions/message/sessionList"
 import {
     changeMessageItemData,
@@ -55,7 +56,7 @@ export const logOut = ()=>{
     const {
         socketInstance
     } = store.getState().message
-    if(socketInstance.readyState===1){
+    if(socketInstance&&socketInstance.readyState===1){
         socketInstance.close()
     }
     dispatch(removeMessageData())
@@ -179,6 +180,7 @@ export const initializeSDKWithOptions = ({
         let reconnectMark = false;
 
         ws.socket.onopen = () => {
+
             reconnect = 0;
             reconnectMark = false;
             ws.receiveMessageTimer = setTimeout(() => {
@@ -214,7 +216,7 @@ export const initializeSDKWithOptions = ({
         };
         ws.socket.onmessage = (e) => {
             const data = JSON.parse(e.data)
-            onMessage({ws: ws.socket,data,wsInstance:ws})
+            onMessage({ws: ws.socket,data,wsInstance:ws,access_token})
 
             clearTimeout(ws.receiveMessageTimer);
             ws.receiveMessageTimer = setTimeout(() => {
@@ -288,7 +290,7 @@ export const initializeSDKWithOptions = ({
 }
 
 
-const onMessage = ({ws,data,wsInstance})=>{
+const onMessage = ({ws,data,wsInstance,access_token})=>{
     const {
         allUserInfoData,
         allMessageListData,
@@ -301,7 +303,10 @@ const onMessage = ({ws,data,wsInstance})=>{
     switch (data.type) {
         case 'user.self':
             dispatch(userLogin({
-                userInfoData: data.data.user_info
+                userInfoData: {
+                    ...data.data.user_info,
+                    access_token
+                }
             }))
             break;
         case 'login':
@@ -374,7 +379,52 @@ const onMessage = ({ws,data,wsInstance})=>{
                         user_ids: newArray,
                     }
                 }))
+
             }
+            session_list.map((e)=>{
+                ws.send(JSON.stringify({
+                    type: 'message.list',
+                    data: {
+                        type: 'user',
+                        relation_id: e.relation_id,
+                        page: 1,
+                        rows: 10,
+                    }
+                }))
+            })
+            ws.send(JSON.stringify({
+                type: 'message.unread.count',
+            }))
+            break;
+        case 'message.unread.count':
+
+            const {
+                selectedSessionListItemId,
+            } = store.getState().message
+            const {
+                getNavigation,
+            } = store.getState().navigation
+            const navigation = getNavigation()
+            const lastRouteName = navigation.routes[navigation.routes.length-1].routeName
+
+            const newData = {}
+            data.data.list.map((e)=>{
+                if (lastRouteName==='MessageDetail') {
+                    if (selectedSessionListItemId===e.user_id) {
+                        ws.send(JSON.stringify({
+                            type: 'message.read',
+                            data: {
+                    			user_id: e.user_id,
+                            }
+                        }))
+                    }else {
+                        newData[e.user_id] = e.count
+                    }
+                }else {
+                    newData[e.user_id] = e.count
+                }
+            })
+            dispatch(setUnreadMessageNumData(newData))
             break;
         case 'user.info':
             if(data.code===0){
@@ -497,6 +547,13 @@ const onMessage = ({ws,data,wsInstance})=>{
                                 id: relationId,
                             }))
                         }
+                    }else {
+                        ws.send(JSON.stringify({
+                            type: 'message.read',
+                            data: {
+                                sign,
+                            }
+                        }))
                     }
 
                     //更改sessionListData排序

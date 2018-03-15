@@ -67,11 +67,12 @@ class MessageListView extends Component{
                     style = {{backgroundColor:'#F0EFF5'}}
                     refreshing = {sessionListRefreshing}
                     onRefresh = {()=>{
-                        dispatch(sessionListRefresh())
-
-                        socketInstance.send(JSON.stringify({
-                            type: 'message.session.list',
-                        }))
+                        if(socketInstance&&socketInstance.readyState===1){
+                            dispatch(sessionListRefresh())
+                            socketInstance.send(JSON.stringify({
+                                type: 'message.session.list',
+                            }))
+                        }
                     }}
                 />
             </View>

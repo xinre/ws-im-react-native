@@ -53,14 +53,25 @@ export const addMoreAllUserInfoData = ({data})=>{
 
 export const selectedSessionListItem = ({id})=>{
     return dispatch => {
+        const {
+            socketInstance
+        } = store.getState().message
         let newObject = {}
-        newObject[id] = 0
-        dispatch({
-            type : types.message.SELECTED_SESSION_LIST_ITEM,
-            id,
-            unreadMessageData: newObject,
-        })
-        store.getState().message.socketInstance.send(JSON.stringify({
+        if(newObject[id]!==0){
+            newObject[id] = 0
+            dispatch({
+                type: types.message.SELECTED_SESSION_LIST_ITEM,
+                id,
+                unreadMessageData: newObject,
+            })
+            socketInstance.send(JSON.stringify({
+                type: 'message.read',
+                data: {
+        			user_id: id,
+                }
+            }))
+        }
+        socketInstance.send(JSON.stringify({
             type: 'message.list',
             data: {
                 type: 'user',
@@ -128,6 +139,17 @@ export const setUnreadMessageNum = ({num,id})=>{
         })
     }
 }
+
+
+export const setUnreadMessageNumData = (e)=>{
+    return dispatch => {
+        dispatch({
+            type: types.message.SET_UNREAD_MESSAGE_NUM,
+            data: e,
+        })
+    }
+}
+
 
 
 export const sessionListRefresh = ()=>{

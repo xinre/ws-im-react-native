@@ -317,6 +317,12 @@ export default class MessageSend extends Component{
         }
     }
     uploadImage({dataURL}:{dataURL: string}){
+        const {
+            userInfo
+        } = this.props
+        const {
+            access_token
+        } = userInfo
         this.sendMessage({
             content_type: 'image',
             image_url: dataURL,
@@ -331,7 +337,7 @@ export default class MessageSend extends Component{
                 body: JSON.stringify({
                     type: "message_image",
                     file: dataURL,
-                    access_token: "f914f40705ced1e4495f1764d9f571aba1d7fe69"
+                    access_token,
                 })
             })
             .then(e => e.json())
@@ -343,7 +349,7 @@ export default class MessageSend extends Component{
                         removeSign: sign
                     })
                 }else {
-                    Toast.error('上传失败')
+                    Toast.error(e.errmsg)
                 }
             })
         })
