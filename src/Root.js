@@ -25,6 +25,7 @@ import {
     addAllUserInfoData,
     addMoreAllUserInfoData,
     addMessageListViewData,
+    addBatchMessageListViewData,
     addSessionListData,
     setUnreadMessageNum,
     selectedSessionListItem,
@@ -41,6 +42,10 @@ import {subscribe} from 'redux-subscriber';
 
 const chatUrl = 'ws://ws.pinggai.cc'
 
+let messageTaskNumber = 0
+let startMessageWaiting = false
+let messageTaskCacheData = []
+let messageTaskTimer;
 
 export {
     MessageListView,
@@ -379,7 +384,23 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
                         user_ids: newArray,
                     }
                 }))
+            }
 
+            if(session_list.length){
+                messageTaskNumber = session_list.length
+                startMessageWaiting = true
+                messageTaskTimer = setTimeout(()=>{
+                    if(messageTaskCacheData.length){
+                        dispatch(addBatchMessageListViewData({
+                            list: messageTaskCacheData
+                        }))
+                        messageTaskNumber = 0
+                        startMessageWaiting = false
+                        messageTaskCacheData = []
+                    }else {
+                        //任务队列空
+                    }
+                },5000)
             }
             session_list.map((e)=>{
                 ws.send(JSON.stringify({
@@ -476,24 +497,45 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
 
             if(data.code===0){
                 const {
-                    relation_id
-                } = data.data
-                const {
                     listViewInstance,
                 } = store.getState().message
 
-                dispatch(addMessageListViewData({
-                    id: relation_id,
-                    data: data.data
-                }))
-                .then(()=>{
-                    if(data.data.page_data.current_page===1){
-                        setTimeout(()=>{
-                            listViewInstance&&listViewInstance(true)
-                        },50)
+                if(startMessageWaiting){
+                    messageTaskCacheData.push(data.data)
+                    if(messageTaskCacheData.length===messageTaskNumber){
+                        dispatch(addBatchMessageListViewData({
+                            list: messageTaskCacheData
+                        }))
+                        .then(()=>{
+                            if(data.data.page_data.current_page===1){
+                                setTimeout(()=>{
+                                    listViewInstance&&listViewInstance(true)
+                                },50)
+                            }
+                        })
+                        messageTaskNumber = 0
+                        startMessageWaiting = false
+                        messageTaskCacheData = []
+                        messageTaskTimer&&global.clearTimeout(messageTaskTimer)
+                    }else {
+                        //任务条件不满足
                     }
-                })
-
+                }else {
+                    const {
+                        relation_id
+                    } = data.data
+                    dispatch(addMessageListViewData({
+                        id: relation_id,
+                        data: data.data
+                    }))
+                    .then(()=>{
+                        if(data.data.page_data.current_page===1){
+                            setTimeout(()=>{
+                                listViewInstance&&listViewInstance(true)
+                            },50)
+                        }
+                    })
+                }
             }else {
                 Toast.info(data.msg)
             }

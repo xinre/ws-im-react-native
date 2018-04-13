@@ -103,9 +103,7 @@ export const addMessageListViewData = ({data,id})=>{
                 const oldData = allMessageListData[id].list
                 let newData = {}
 
-                if(data.page_data.current_page===1){
-
-                }else {
+                if(data.page_data.current_page!==1){
                     data.list = [...oldData,...data.list]
                 }
 
@@ -127,6 +125,51 @@ export const addMessageListViewData = ({data,id})=>{
         })
     }
 }
+
+
+
+export const addBatchMessageListViewData = ({list})=>{
+    return dispatch => {
+        return new Promise((resolve, reject)=>{
+            resolve()
+        })
+        .then(()=>{
+            const {
+                message
+            } = store.getState()
+
+            const {
+                allMessageListData,
+            } = message
+
+            list.map((item)=>{
+                const id = item.relation_id
+                const data = item
+                if(allMessageListData[id]){
+                    const oldData = allMessageListData[id].list
+
+                    if(data.page_data.current_page!==1){
+                        data.list = [...oldData,...data.list]
+                    }
+
+                    allMessageListData[id] = data
+
+                }else {
+                    allMessageListData[id] = data
+                }
+            })
+
+            // console.log(allMessageListData);
+            dispatch({
+                type : types.message.ADD_BATCH_MESSAGE_LIST_VIEW_DATA,
+                data: allMessageListData,
+                refreshing: false
+            })
+
+        })
+    }
+}
+
 
 
 export const setUnreadMessageNum = ({num,id})=>{

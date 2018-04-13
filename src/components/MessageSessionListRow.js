@@ -55,7 +55,7 @@ export default class MessageSessionListRow extends Component{
                 >
                     <Badge text={allUnreadMessage[itemData.relation_id]}>
                         <Image
-                            source = {data.avatar&&data.avatar.length?{uri:data.avatar}:require('../images/defaultAvatar-man.png')}
+                            source = {data.avatar&&data.avatar.length?{uri:`${data.avatar}?x-oss-process=image/resize,h_100`}:require('../images/defaultAvatar-man.png')}
                             style={styles.image1}
                         />
                     </Badge>

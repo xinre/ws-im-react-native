@@ -52,6 +52,11 @@ export default (state = initialState, action)=>{
                 allMessageListData: Object.assign({},state.allMessageListData,action.data),
                 refreshing: action.refreshing,
             })
+        case types.message.ADD_BATCH_MESSAGE_LIST_VIEW_DATA:
+            return Object.assign({}, state, {
+                allMessageListData: action.data,
+                refreshing: action.refreshing,
+            })
         case types.message.ADD_MESSAGE_ITEM_DATA:
             return Object.assign({}, state, {
                 allMessageListData: Object.assign({},state.allMessageListData,action.data),
