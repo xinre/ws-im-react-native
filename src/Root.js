@@ -494,7 +494,6 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
             }
             break;
         case 'message.list':
-
             if(data.code===0){
                 const {
                     listViewInstance,

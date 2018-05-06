@@ -20,11 +20,22 @@ import {
     sessionListRefresh
 } from "../actions/message/sessionList";
 import { NavigationActions } from 'react-navigation'
-
+import MessageSearch from "../components/MessageSearch";
 
 
 class MessageListView extends Component{
+    state={
+        searchModalVisible: false,
+    }
+    changeSearchModal = (e)=>{
+        this.setState({
+            searchModalVisible: e
+        })
+    }
     render() {
+        const {
+            searchModalVisible
+        } = this.state
         const {
             sessionListData,
             allUserInfoData,
@@ -46,11 +57,32 @@ class MessageListView extends Component{
                 return index2 - index
             })
         :   sessionListData
-
+        const sessionListDataSource = sessionList.map((item)=>{
+            return allUserInfoData[item.relation_id]
+        })
         return (
             <View style={{flex:1}}>
                 <FlatList
-                    ListHeaderComponent = {listViewHeader||undefined}
+                    ListHeaderComponent = {
+                        <View>
+                            {listViewHeader}
+                            <TouchableOpacity
+                                style={styles.view3}
+                                activeOpacity={1}
+                                onPress={()=>{
+                                    this.changeSearchModal(true)
+                                }}
+                            >
+                                <Image
+                                    source={require('../images/search.png')}
+                                    style={styles.image1}
+                                />
+                                <Text style={styles.text1}>
+                                    搜索
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    }
                     data={sessionList}
                     renderItem={({item}) => (
                         <MessageSessionListRow
@@ -75,6 +107,19 @@ class MessageListView extends Component{
                         }
                     }}
                 />
+                <MessageSearch
+                    visible={searchModalVisible}
+                    close={()=>{
+                        this.changeSearchModal(false)
+                    }}
+                    dataSource={sessionListDataSource}
+                    sessionData={sessionList}
+                    allUserInfoData={allUserInfoData}
+                    navigation={navigation}
+                    dispatch={dispatch}
+                    allMessageListData={allMessageListData}
+                    allUnreadMessage = {allUnreadMessage}
+                />
             </View>
         )
     }
@@ -96,6 +141,24 @@ const styles = StyleSheet.create({
         borderBottomWidth:1,
         borderColor:'#F2F2F2',
         marginLeft:10,
+    },
+    view3:{
+        margin:10,
+        borderRadius:5,
+        backgroundColor:'#fff',
+        height:35,
+        justifyContent:'center',
+        alignItems:'center',
+        flexDirection:'row',
+    },
+    image1:{
+        height:17,
+        width:17,
+        marginRight:5,
+    },
+    text1:{
+        fontSize:16,
+        color:'#bfbfbf',
     },
 })
 

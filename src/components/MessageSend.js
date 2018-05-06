@@ -21,10 +21,10 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import {selectedSessionListItem} from '../actions/message/sessionList';
 import {DateFormat} from '../utils/PublicFuncitonModule';
 import {addMessageItemData} from "../actions/message/messageSend";
-import {emojiArray} from "../pages/MessageEmojiGroup";
+import {emojiArray,emojiNativeArray,emojifyToString} from "../pages/MessageEmojiGroup";
 import Emoji from 'react-native-emoji';
 import ImagePicker from 'react-native-image-picker';
-
+import AutoExpandingTextInput from 'react-native-auto-expanding-textinput'
 
 
 const options = {
@@ -75,7 +75,8 @@ export default class MessageSend extends Component{
                 <View style={styles.view1}>
                     <View style={styles.view2}>
                         <View style={styles.view3}>
-                            <TextInput
+                            <AutoExpandingTextInput
+                                maxHeight={100}
                                 ref = {(e)=>{this.textInput=e}}
                                 style = {styles.textInput1}
                                 underlineColorAndroid={'transparent'}
@@ -90,7 +91,6 @@ export default class MessageSend extends Component{
                                         textInputValue
                                     } = this.state
                                     if(textInputValue&&textInputValue.length){
-
                                         this.sendMessage({
                                             content_type: 'text',
                                             text_content: textInputValue,
@@ -227,19 +227,19 @@ export default class MessageSend extends Component{
             return(
                 <View style={styles.view5}>
                     {
-                        emojiArray.map((data,i)=>(
+                        emojiNativeArray.map((data,i)=>(
                             <TouchableOpacity
                                 activeOpacity={1}
                                 key = {i}
                                 onPress = {()=>{
                                     this.setState((e)=>{
-                                        e.textInputValue = `${e.textInputValue}${data}`
+                                        e.textInputValue = `${e.textInputValue}${data.emoji}`
                                         return e
                                     })
                                 }}
                             >
                                 <Emoji
-                                    name={data}
+                                    name={data.title}
                                     style = {[styles.emoji1]}
                                 />
                             </TouchableOpacity>
@@ -492,7 +492,7 @@ const styles = StyleSheet.create({
         borderColor:'#E7E7E9',
     },
     view2:{
-        height:45,
+        minHeight:45,
         paddingVertical:5,
         flexDirection:'row',
     },

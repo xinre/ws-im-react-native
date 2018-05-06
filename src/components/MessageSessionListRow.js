@@ -29,6 +29,7 @@ export default class MessageSessionListRow extends Component{
             navigation,
             dispatch,
             allMessageListData,
+            onPress,
         } = this.props
 
         const data = allUserInfoData[itemData.relation_id]
@@ -42,6 +43,7 @@ export default class MessageSessionListRow extends Component{
                 activeOpacity = {0.9}
                 underlayColor = {'#000'}
                 onPress = {()=>{
+                    onPress&&onPress()
                     navigation.navigate('MessageDetail',{
                         id: data.id,
                     })
