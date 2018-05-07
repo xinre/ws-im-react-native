@@ -4,15 +4,17 @@ import React,{Component} from "react";
 import { Provider } from "react-redux";
 import {
     AppState,
+    AsyncStorage,
 } from "react-native";
 import store from "./store";
 import App from "./containers/App";
 import {Toast} from "./utils/PublicFuncitonModule";
-// import "./utils/APP_ROOT_CONFIG";
 import {
     onChangeWebSocketConnectState,
     setWebSocket,
     removeMessageData,
+    initRemoveSession,
+    checkIsRemoveSession,
 } from "./actions/message"
 import {
     userLogin
@@ -42,6 +44,8 @@ import {subscribe} from 'redux-subscriber';
 
 const chatUrl = 'ws://ws.pinggai.cc'
 
+export const removeSessionStorageKey = 'ws-im-react-native-removeSession'
+
 let messageTaskNumber = 0
 let startMessageWaiting = false
 let messageTaskCacheData = []
@@ -64,7 +68,9 @@ export const logOut = ()=>{
     if(socketInstance&&socketInstance.readyState===1){
         socketInstance.close()
     }
+    AsyncStorage.removeItem(removeSessionStorageKey)
     dispatch(removeMessageData())
+    AppState.removeEventListener('change', ()=>{});
     return new Promise((resolve, reject)=>{
         resolve({
             msg: '已清空数据'
@@ -140,13 +146,14 @@ export const initializeSDKWithOptions = ({
     unreadMessageNumberChange: functon,
 })=>{
     const {
-        dispatch
+        dispatch,
     } = store
 
     const unsubscribe = subscribe('message.allUnreadMessage', state => {
         unreadMessageNumberChange&&unreadMessageNumberChange(state.message.allUnreadMessage)
     })
 
+    dispatch(initRemoveSession())
     dispatch(setGetNavigation({
         getNavigation,
         getStore,
@@ -555,6 +562,7 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
                     listViewInstance,
                     allUnreadMessage,
                     selectedSessionListItemId,
+                    removeSessionList,
                 } = store.getState().message
                 const {
                     userInfo,
@@ -569,6 +577,8 @@ const onMessage = ({ws,data,wsInstance,access_token})=>{
                 const myRelationId = userInfo.id!==relation_id?user_id:relation_id
 
                 const sessionListIndex = sessionListData.findIndex((e)=>{return e.relation_id===relationId})
+
+                dispatch(checkIsRemoveSession(relationId,removeSessionList))
 
                 //处理未读消息
                 const isCurrentKf = kfUserId===relationId&&navigation.routes[navigation.routes.length-1].routeName==='MessageDetail'

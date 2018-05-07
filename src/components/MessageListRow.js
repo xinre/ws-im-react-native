@@ -92,7 +92,7 @@ export default class MessageListRow extends Component{
             switch (data.content_type) {
                 case 'text':
                     return(
-                        <Text style={[styles.text2,right&&{color:'#fff'}]} selectable={true}>{emojify(data.content.text_content)}</Text>
+                        <Text style={[styles.text2,right&&{color:'#fff'},{lineHeight:22}]} selectable={true}>{emojify(data.content.text_content)}</Text>
                     )
                 case 'image':
                     return(

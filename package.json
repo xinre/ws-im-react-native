@@ -9,6 +9,7 @@
   "dependencies": {
     "react-native-dropdownalert": "^3.1.2",
     "react-native-emoji": "git+https://github.com/xuanheScript/react-native-emoji.git",
+    "react-native-auto-expanding-textinput": "git+https://github.com/xuanheScript/react-native-auto-expanding-textinput.git",
     "react-native-fit-image": "^1.5.4",
     "react-native-gallery": "^0.0.17",
     "react-native-image-gallery": "git+https://github.com/xuanheScript/react-native-image-gallery.git",

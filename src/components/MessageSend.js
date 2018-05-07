@@ -76,8 +76,9 @@ export default class MessageSend extends Component{
                     <View style={styles.view2}>
                         <View style={styles.view3}>
                             <AutoExpandingTextInput
-                                maxHeight={100}
-                                ref = {(e)=>{this.textInput=e}}
+                                minHeight={17}
+                                maxHeight={80}
+                                withRef = {(e)=>{this.textInput=e}}
                                 style = {styles.textInput1}
                                 underlineColorAndroid={'transparent'}
                                 value = {textInputValue}
@@ -95,11 +96,7 @@ export default class MessageSend extends Component{
                                             content_type: 'text',
                                             text_content: textInputValue,
                                         })
-
-                                        this.setState({
-                                            textInputValue: ''
-                                        })
-
+                                        this.textInput.clear()
                                     }else {
                                         Toast.warn('请输入内容')
                                     }
@@ -503,12 +500,14 @@ const styles = StyleSheet.create({
         borderWidth:1,
         borderColor:'#E8E8E9',
         borderRadius:3,
+        justifyContent:'center',
     },
     textInput1:{
+        paddingTop:0,
         padding:0,
         fontSize:14,
         color:'#000',
-        flex:1,
+        // flex:1,
         marginHorizontal:5,
     },
     keyboardAvoidingView1:{

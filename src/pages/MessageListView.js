@@ -9,6 +9,9 @@ import{
     TouchableOpacity,
     StatusBar,
     FlatList,
+    SwipeableFlatList,
+    TouchableHighlight,
+    Alert,
 } from 'react-native';
 
 import {PublicStyles,PublicStylesString,windowWidth,windowHeight,ThemeStyle} from '../utils/PublicStyleModule';
@@ -17,10 +20,13 @@ import { connect } from "react-redux";
 import { HeaderBackButton } from "react-navigation";
 import MessageSessionListRow from "../components/MessageSessionListRow";
 import {
-    sessionListRefresh
+    sessionListRefresh,
+    selectedSessionListItem,
 } from "../actions/message/sessionList";
 import { NavigationActions } from 'react-navigation'
 import MessageSearch from "../components/MessageSearch";
+import {removeSession} from "../actions/message";
+
 
 
 class MessageListView extends Component{
@@ -34,10 +40,10 @@ class MessageListView extends Component{
     }
     render() {
         const {
-            searchModalVisible
+            searchModalVisible,
         } = this.state
         const {
-            sessionListData,
+            sessionListData: nativeSessionListData,
             allUserInfoData,
             allUnreadMessage,
             socketInstance,
@@ -48,8 +54,9 @@ class MessageListView extends Component{
             screenProps,
             listViewHeader,
             stickTopSessionList,
+            removeSessionList,
         } = this.props
-
+        const sessionListData = nativeSessionListData.filter((e)=>!removeSessionList.includes(`${e.relation_id}`))
         const sessionList = stickTopSessionList.length
         ?   sessionListData.sort((a,b)=>{
                 const index = stickTopSessionList.findIndex((e)=>(e===a.relation_id))
@@ -62,7 +69,10 @@ class MessageListView extends Component{
         })
         return (
             <View style={{flex:1}}>
-                <FlatList
+                <SwipeableFlatList
+                    renderQuickActions={this.renderQuickActions}
+                    bounceFirstRowOnMount={false}
+                    maxSwipeDistance={80}
                     ListHeaderComponent = {
                         <View>
                             {listViewHeader}
@@ -94,7 +104,7 @@ class MessageListView extends Component{
                             allMessageListData = {allMessageListData}
                         />
                     )}
-                    keyExtractor={(item)=>item.relation_id}
+                    keyExtractor={(item)=>`${item.relation_id}`}
                     ItemSeparatorComponent = {separatorComponent}
                     style = {{backgroundColor:'#F0EFF5'}}
                     refreshing = {sessionListRefreshing}
@@ -120,6 +130,28 @@ class MessageListView extends Component{
                     allMessageListData={allMessageListData}
                     allUnreadMessage = {allUnreadMessage}
                 />
+            </View>
+        )
+    }
+    renderQuickActions = ({item})=>{
+        const {
+            removeSessionList,
+            dispatch,
+        } = this.props
+        return (
+            <View style={styles.actionsContainer}>
+                <TouchableOpacity
+                    style={[styles.actionButton,{backgroundColor:'red'}]}
+                    activeOpacity={1}
+                    onPress={()=>{
+                        dispatch(removeSession(item.relation_id,removeSessionList))
+                        dispatch(selectedSessionListItem({
+                            id: item.relation_id,
+                        }))
+                    }}
+                >
+                    <Text style={styles.actionButtonText}>隐藏</Text>
+                </TouchableOpacity>
             </View>
         )
     }
@@ -160,6 +192,21 @@ const styles = StyleSheet.create({
         fontSize:16,
         color:'#bfbfbf',
     },
+    actionsContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+    },
+    actionButton: {
+        width: 80,
+        backgroundColor: '#999999',
+        alignItems:'center',
+        justifyContent:'center',
+    },
+    actionButtonText: {
+        fontSize:16,
+        color:'#fff',
+    },
 })
 
 
@@ -173,6 +220,7 @@ const mapStateToProps = store => {
         sessionListRefreshing,
         allMessageListData,
         stickTopSessionList,
+        removeSessionList,
     } = store.message
     return {
         connectState,
@@ -183,6 +231,7 @@ const mapStateToProps = store => {
         sessionListRefreshing,
         allMessageListData,
         stickTopSessionList,
+        removeSessionList,
     };
 };
 
