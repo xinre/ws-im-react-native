@@ -66,7 +66,7 @@ class MessageListView extends Component{
         :   sessionListData
         const sessionListDataSource = sessionList.map((item)=>{
             return allUserInfoData[item.relation_id]
-        })
+        }).filter(item=>item)
         return (
             <View style={{flex:1}}>
                 <SwipeableFlatList

@@ -77,7 +77,7 @@ export default class MessageSearch extends Component{
                     {
                         searchValue&&searchValue.length
                         ?   dataSource.map((item,i)=>{
-                            if(item.nickname.includes(searchValue)){
+                            if(item.nickname.toLowerCase().includes(searchValue.toLowerCase())){
                                 return (
                                     <MessageSessionListRow
                                         itemData = {sessionData[i]}
